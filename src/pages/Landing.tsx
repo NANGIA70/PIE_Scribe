@@ -2,17 +2,25 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { VisitTypePicker } from '../components/visit/VisitTypePicker';
 import { RecentVisits } from '../components/visit/RecentVisits';
+import { PatientPicker } from '../components/visit/PatientPicker';
 import { Button } from '../components/ui/Button';
 import { Mic, User } from 'lucide-react';
 import { clsx } from 'clsx';
+import { Card } from '../components/ui/Card';
 
 export const Landing: React.FC = () => {
     const navigate = useNavigate();
     const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null);
+    const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
 
     const handleStart = () => {
         if (selectedTypeId) {
-            navigate('/recording', { state: { visitTypeId: selectedTypeId } });
+            navigate('/recording', {
+                state: {
+                    visitTypeId: selectedTypeId,
+                    patientId: selectedPatientId
+                }
+            });
         }
     };
 
@@ -26,17 +34,27 @@ export const Landing: React.FC = () => {
                         Ready for a new visit?
                     </h1>
                     <p className="text-slate-500 text-lg">
-                        Select a visit type to configure content guardrails.
+                        Select context to configure content guardrails.
                     </p>
                 </div>
 
-                <div className="w-full max-w-3xl">
-                    <VisitTypePicker
-                        selectedTypeId={selectedTypeId}
-                        onSelect={setSelectedTypeId}
-                    />
+                <div className="w-full max-w-3xl space-y-8">
+                    {/* Patient Context Section */}
+                    <div className="text-left space-y-2">
+                        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">1. Select Patient (Optional)</h3>
+                        <PatientPicker selectedPatientId={selectedPatientId} onSelect={setSelectedPatientId} />
+                    </div>
 
-                    <div className="flex flex-col items-center gap-4 mt-8">
+                    {/* Visit Type Section */}
+                    <div className="text-left space-y-2">
+                        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">2. Select Visit Type</h3>
+                        <VisitTypePicker
+                            selectedTypeId={selectedTypeId}
+                            onSelect={setSelectedTypeId}
+                        />
+                    </div>
+
+                    <div className="flex flex-col items-center gap-4 mt-8 pt-8 border-t border-slate-100">
                         <Button
                             size="lg"
                             className={clsx(
@@ -51,7 +69,7 @@ export const Landing: React.FC = () => {
                         </Button>
 
                         {!selectedTypeId && (
-                            <p className="text-sm text-slate-400 animate-pulse">Select a visit type above to begin</p>
+                            <p className="text-sm text-slate-400 animate-pulse">Select a visit type to begin</p>
                         )}
                     </div>
                 </div>
@@ -61,12 +79,12 @@ export const Landing: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-100">
                 <RecentVisits />
 
-                {/* Patient Lookup Placeholder */}
-                <div className="bg-slate-50 rounded-xl border border-dashed border-slate-300 p-8 flex flex-col items-center justify-center text-center text-slate-500 hover:border-slate-400 hover:text-slate-600 transition-colors cursor-pointer group">
-                    <User size={32} className="mb-3 text-slate-400 group-hover:text-slate-600" />
-                    <p className="font-medium">Lookup Patient</p>
-                    <p className="text-sm opacity-70">Pre-select patient context</p>
-                </div>
+                {/* Placeholder for future features */}
+                <Card className="flex flex-col items-center justify-center p-8 border-dashed border-2 border-slate-200 bg-slate-50/50 shadow-none">
+                    <User size={32} className="mb-3 text-slate-300" />
+                    <p className="font-medium text-slate-500">Provider Profile</p>
+                    <p className="text-sm text-slate-400">Manage templates & defaults</p>
+                </Card>
             </div>
         </div>
     );

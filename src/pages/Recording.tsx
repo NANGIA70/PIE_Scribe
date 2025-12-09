@@ -3,24 +3,31 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { RecordingTimer } from '../components/recording/RecordingTimer';
 import { AudioWaveform } from '../components/recording/AudioWaveform';
 import { Button } from '../components/ui/Button';
-import { VISIT_TYPES } from '../lib/data';
-import { Mic, Square, Pause, Play, CheckCircle2 } from 'lucide-react';
+import { VISIT_TYPES, PATIENTS } from '../lib/data';
+import { Mic, Square, Pause, Play, CheckCircle2, User } from 'lucide-react';
 import { Card } from '../components/ui/Card';
+import { MicTestModal } from '../components/recording/MicTestModal';
 
 export const Recording: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const visitTypeId = location.state?.visitTypeId;
+    const patientId = location.state?.patientId;
+
     const visitType = VISIT_TYPES.find(t => t.id === visitTypeId);
+    const patient = PATIENTS.find(p => p.id === patientId);
 
     const [isRecording, setIsRecording] = useState(true);
+    const [isMicTestOpen, setIsMicTestOpen] = useState(false);
 
     const handleStop = () => {
         setIsRecording(false);
-        // Simulate processing
-        setTimeout(() => {
-            navigate('/review');
-        }, 1500);
+        navigate('/processing', {
+            state: {
+                visitTypeId,
+                patientId
+            }
+        });
     };
 
     const togglePause = () => {
@@ -29,6 +36,8 @@ export const Recording: React.FC = () => {
 
     return (
         <div className="flex flex-col items-center justify-center h-[calc(100vh-80px)] p-6 animate-in zoom-in-95 duration-500">
+
+            <MicTestModal isOpen={isMicTestOpen} onClose={() => setIsMicTestOpen(false)} />
 
             <div className="w-full max-w-2xl space-y-8">
                 {/* Status Card */}
@@ -76,6 +85,7 @@ export const Recording: React.FC = () => {
                                 size="lg"
                                 className="rounded-full w-16 h-16 p-0 flex items-center justify-center border-2 border-slate-200 text-slate-400"
                                 title="Check Mic"
+                                onClick={() => setIsMicTestOpen(true)}
                             >
                                 <Mic />
                             </Button>
@@ -87,6 +97,11 @@ export const Recording: React.FC = () => {
                 <div className="text-center space-y-2">
                     <p className="text-slate-500">
                         Recording for <span className="font-semibold text-slate-800">{visitType?.label || "General Visit"}</span>
+                        {patient && (
+                            <span className="ml-2 inline-flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-full text-sm font-medium text-slate-700">
+                                <User size={12} /> {patient.name}
+                            </span>
+                        )}
                     </p>
                     <div className="flex items-center justify-center gap-2 text-sm text-green-600">
                         <CheckCircle2 size={16} />
@@ -94,7 +109,8 @@ export const Recording: React.FC = () => {
                     </div>
                 </div>
             </div>
-
         </div>
+
+
     );
 };

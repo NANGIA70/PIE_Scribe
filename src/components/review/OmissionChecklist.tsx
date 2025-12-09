@@ -12,7 +12,7 @@ export const OmissionChecklist: React.FC<OmissionChecklistProps> = ({ visitTypeI
     const visitType = VISIT_TYPES.find(t => t.id === visitTypeId) || VISIT_TYPES[0];
 
     // Simulate some items being checked
-    const items = visitType.checklists.map((item, index) => ({
+    const items = (visitType.checklists || []).map((item, index) => ({
         label: item,
         checked: index % 2 === 0 // Mock status
     }));

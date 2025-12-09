@@ -1,42 +1,81 @@
 import React from 'react';
-import { MOCK_CODES } from '../../lib/data';
-import { Tag, Search } from 'lucide-react';
-import { Badge } from '../ui/Badge';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
+import { MOCK_CODE_SUGGESTIONS } from '../../lib/data';
+import { Info, Check, Plus } from 'lucide-react';
+import { clsx } from 'clsx';
+import { Card } from '../ui/Card';
+import type { CodeSuggestion } from '../../lib/types';
 
-export const CodeSuggestions: React.FC = () => {
+interface CodeSuggestionsProps {
+    selectedCodes?: CodeSuggestion[];
+    onToggleCode?: (code: CodeSuggestion) => void;
+}
+
+export const CodeSuggestions: React.FC<CodeSuggestionsProps> = ({ selectedCodes = [], onToggleCode = () => { } }) => {
     return (
-        <Card className="h-full">
-            <CardHeader className="py-4">
-                <CardTitle className="text-sm uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                    <Tag size={16} />
-                    Suggested Codes
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                {MOCK_CODES.map((code) => (
-                    <div key={code.id} className="group p-3 rounded-lg border border-slate-100 hover:border-teal-200 hover:bg-teal-50/30 transition-all cursor-pointer">
-                        <div className="flex justify-between items-start mb-1">
-                            <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="bg-white font-mono text-slate-700">{code.code}</Badge>
-                                <Badge
-                                    variant={code.confidence > 0.9 ? 'success' : 'warning'}
-                                    className="text-[10px] px-1.5 py-0"
-                                >
-                                    {Math.round(code.confidence * 100)}% Match
-                                </Badge>
-                            </div>
-                            <Search size={14} className="text-slate-300 group-hover:text-teal-500" />
-                        </div>
-                        <p className="text-sm font-medium text-slate-800 mb-2">{code.description}</p>
-                        {code.evidence.length > 0 && (
-                            <div className="text-xs text-slate-500 border-l-2 border-slate-200 pl-2 italic">
-                                "{code.evidence[0]}"
-                            </div>
-                        )}
+        <Card className="overflow-hidden border border-slate-200 shadow-sm animate-in slide-in-from-right-4 duration-500">
+            <div className="p-3 bg-indigo-50/50 border-b border-indigo-100 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                    <div className="p-1 bg-indigo-100 rounded text-indigo-600">
+                        <Info size={14} />
                     </div>
-                ))}
-            </CardContent>
+                    <h3 className="font-semibold text-slate-800 text-sm">Coding Assistant</h3>
+                </div>
+                <span className="text-xs font-medium text-slate-500">{MOCK_CODE_SUGGESTIONS.length} suggestions</span>
+            </div>
+
+            <div className="divide-y divide-slate-100">
+                {MOCK_CODE_SUGGESTIONS.map((suggestion) => {
+                    const isSelected = selectedCodes.some(c => c.id === suggestion.id);
+
+                    return (
+                        <div key={suggestion.id} className={clsx("p-3 transition-colors hover:bg-slate-50", isSelected && "bg-indigo-50/30")}>
+                            <div className="flex justify-between items-start mb-1">
+                                <div className="flex items-center gap-2">
+                                    <span className="font-mono text-sm font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">
+                                        {suggestion.code}
+                                    </span>
+                                    <span className={clsx(
+                                        "text-[10px] font-bold px-1.5 py-0.5 rounded uppercase",
+                                        suggestion.type === 'ICD-10' ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"
+                                    )}>
+                                        {suggestion.type}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-1 text-xs font-medium text-green-600" title="Confidence Score">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                    {Math.round(suggestion.confidence * 100)}%
+                                </div>
+                            </div>
+
+                            <p className="text-sm text-slate-600 mb-3 leading-snug">
+                                {suggestion.description}
+                            </p>
+
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => onToggleCode(suggestion)}
+                                    className={clsx(
+                                        "flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded text-xs font-medium transition-all border",
+                                        isSelected
+                                            ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                                            : "bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-600"
+                                    )}
+                                >
+                                    {isSelected ? (
+                                        <>
+                                            <Check size={12} /> Accepted
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Plus size={12} /> Accept
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
         </Card>
     );
 };

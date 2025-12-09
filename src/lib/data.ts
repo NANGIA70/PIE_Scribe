@@ -1,48 +1,74 @@
-import type { VisitType, Patient, TranscriptSegment, CodeSuggestion } from './types';
+import type { Patient, VisitType, TranscriptSegment, SoapNote, CodeSuggestion } from './types';
 
 export const PATIENTS: Patient[] = [
-    { id: 'p1', name: 'Sarah Johnson', dob: '1985-03-12', gender: 'F', mrn: 'MRN-9821' },
-    { id: 'p2', name: 'Michael Chen', dob: '1962-11-05', gender: 'M', mrn: 'MRN-4421' },
+    { id: 'p1', name: 'Emma Thompson', mrn: 'MRN-78210', dob: '1985-04-12', gender: 'F' },
+    { id: 'p2', name: 'James Wilson', mrn: 'MRN-55921', dob: '1962-08-23', gender: 'M' },
+    { id: 'p3', name: 'Sophia Chen', mrn: 'MRN-10293', dob: '1990-11-30', gender: 'F' },
 ];
 
 export const VISIT_TYPES: VisitType[] = [
-    {
-        id: 'vt1',
-        label: 'URI / Cough',
-        color: 'bg-blue-100 text-blue-700',
-        checklists: ['Duration of symptoms', 'Fever presence', 'Sputum characteristics', 'Smoking history']
-    },
-    {
-        id: 'vt2',
-        label: 'Diabetes Follow-up',
-        color: 'bg-purple-100 text-purple-700',
-        checklists: ['Medication adherence', 'Home glucose readings', 'Hypoglycemia episodes', 'Foot exam']
-    },
-    {
-        id: 'vt3',
-        label: 'General / 15-min',
-        color: 'bg-slate-100 text-slate-700',
-        checklists: ['Chief complaint', 'HPI', 'ROS']
-    },
+    { id: 'vt1', label: 'URI / Cough', icon: 'thermometer' },
+    { id: 'vt2', label: 'Diabetes Follow-up', icon: 'activity' },
+    { id: 'vt3', label: 'MSK / Joint Pain', icon: 'user' },
+    { id: 'vt4', label: 'General / 15-min', icon: 'clock' },
 ];
 
 export const MOCK_TRANSCRIPT: TranscriptSegment[] = [
-    { id: 's1', speaker: 'doctor', text: "Good morning, Sarah. I see you're here for a cough?", timestamp: '00:00', startSeconds: 0, endSeconds: 5 },
-    { id: 's2', speaker: 'patient', text: "Yes, Dr. Lee. It's been really bothering me for about 5 days now.", timestamp: '00:06', startSeconds: 6, endSeconds: 10 },
-    { id: 's3', speaker: 'doctor', text: "I'm sorry to hear that. Any fever or chills with that?", timestamp: '00:11', startSeconds: 11, endSeconds: 15 },
-    { id: 's4', speaker: 'patient', text: "No fever, but I feel a bit tired. And the cough is dry, nothing comes up.", timestamp: '00:16', startSeconds: 16, endSeconds: 22 },
-    { id: 's5', speaker: 'doctor', text: "Okay, dry cough, no sputum. Have you been around anyone sick?", timestamp: '00:23', startSeconds: 23, endSeconds: 28 },
+    { id: 's1', speaker: 'doctor', text: "Hi Emma, good to see you. What brings you in today?", timestamp: 0, duration: 4 },
+    { id: 's2', speaker: 'patient', text: "Hi Dr. Lee. I've had this nagging cough for about 5 days now, and it's just not going away.", timestamp: 4, duration: 6 },
+    { id: 's3', speaker: 'doctor', text: "I see. Is it a dry cough or are you bringing anything up?", timestamp: 10, duration: 4 },
+    { id: 's4', speaker: 'patient', text: "It's mostly dry, maybe a little phlegm in the morning but clear. No fever, but I feel a bit run down.", timestamp: 14, duration: 8 },
+    { id: 's5', speaker: 'doctor', text: "Okay. Any shortness of breath or chest pain?", timestamp: 22, duration: 3 },
+    { id: 's6', speaker: 'patient', text: "No, nothing like that. Just the cough and a scratchy throat.", timestamp: 25, duration: 4 },
 ];
 
-export const MOCK_SOAP_NOTE = {
-    subjective: "Patient presents with a persistent dry cough starting 5 days ago. She denies fever or chills but reports fatigue. The cough is non-productive.",
-    objective: "Vitals: BP 120/80, HR 72, Temp 98.6F. Lungs: Clear to auscultation bilaterally, no wheezes or rales. Pharynx: Mildly erythematous, no exudate.",
-    assessment: "Acute viral bronchitis.",
-    plan: "Supportive care recommended. Recommended honey for cough suppression and staying hydrated. Return if symptoms worsen or persist > 2 weeks.",
+export const MOCK_SOAP_NOTE: SoapNote = {
+    subjective: [
+        { id: 'sub1', text: "Patient presents with a 5-day history of persistent cough.", confidence: 'high', audioStart: 4, audioEnd: 10 },
+        { id: 'sub2', text: "Reports cough is non-productive, with occasional clear phlegm in the morning.", confidence: 'high', audioStart: 14, audioEnd: 22 },
+        { id: 'sub3', text: "Denies fever, shortness of breath, or chest pain.", confidence: 'high', audioStart: 22, audioEnd: 25 },
+        { id: 'sub4', text: "Complains of associated fatigue and scratchy throat.", confidence: 'medium', audioStart: 25, audioEnd: 29 }
+    ],
+    objective: [
+        { id: 'obj1', text: "Constitutional: Well-developed, well-nourished, in no acute distress.", confidence: 'high' },
+        { id: 'obj2', text: "ENT: Oropharynx clear, no exudates. Mucous membranes moist.", confidence: 'high', audioStart: 50, audioEnd: 55 },
+        { id: 'obj3', text: "Lungs: Clear to auscultation bilaterally. No wheezes, rales, or rhonchi.", confidence: 'medium', audioStart: 60, audioEnd: 65 },
+        { id: 'obj4', text: "CV: Regular rate and rhythm.", confidence: 'high' }
+    ],
+    assessment: [
+        { id: 'ass1', text: "Acute upper respiratory infection, unspecified.", confidence: 'high' },
+        { id: 'ass2', text: "Viral bronchitis.", confidence: 'low' }
+    ],
+    plan: [
+        { id: 'pl1', text: "Supportive care with hydration and rest.", confidence: 'high' },
+        { id: 'pl2', text: "Over-the-counter cough suppressants (Dextromethorphan) as needed.", confidence: 'high' },
+        { id: 'pl3', text: "Return to clinic if symptoms worsen or high fever develops.", confidence: 'medium' }
+    ]
 };
 
-export const MOCK_CODES: CodeSuggestion[] = [
-    { id: 'c1', code: 'J40', description: 'Bronchitis, not specified as acute or chronic', type: 'ICD-10', confidence: 0.92, evidence: ['persistent dry cough', 'Acute viral bronchitis'] },
-    { id: 'c2', code: 'R05', description: 'Cough', type: 'ICD-10', confidence: 0.88, evidence: ['cough is non-productive'] },
-    { id: 'c3', code: '99213', description: 'Office/outpatient visit, est patient', type: 'CPT', confidence: 0.95, evidence: [] },
+export const MOCK_CODE_SUGGESTIONS: CodeSuggestion[] = [
+    {
+        id: 'c1',
+        code: 'J06.9',
+        description: 'Acute upper respiratory infection, unspecified',
+        type: 'ICD-10',
+        confidence: 0.95,
+        evidence: ['sub1', 'sub3']
+    },
+    {
+        id: 'c2',
+        code: 'R05',
+        description: 'Cough',
+        type: 'ICD-10',
+        confidence: 0.88,
+        evidence: ['sub2']
+    },
+    {
+        id: 'c3',
+        code: '99213',
+        description: 'Office Visit, Est Patient, Level 3',
+        type: 'CPT',
+        confidence: 0.92,
+        evidence: ['subjective', 'assessment']
+    }
 ];

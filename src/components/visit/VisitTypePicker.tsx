@@ -36,13 +36,13 @@ export const VisitTypePicker: React.FC<VisitTypePickerProps> = ({ selectedTypeId
                                 {type.label}
                             </span>
                             <div className="flex flex-wrap gap-1 justify-center">
-                                {type.checklists.slice(0, 2).map((item, i) => (
+                                {(type.checklists || []).slice(0, 2).map((item, i) => (
                                     <span key={i} className="text-xs px-2 py-0.5 bg-slate-100 rounded-full text-slate-500">
                                         {item}
                                     </span>
                                 ))}
-                                {type.checklists.length > 2 && (
-                                    <span className="text-xs px-2 py-0.5 bg-slate-50 text-slate-400">+{type.checklists.length - 2}</span>
+                                {(type.checklists?.length || 0) > 2 && (
+                                    <span className="text-xs px-2 py-0.5 bg-slate-50 text-slate-400">+{(type.checklists?.length || 0) - 2}</span>
                                 )}
                             </div>
                         </div>

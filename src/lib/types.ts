@@ -9,8 +9,9 @@ export interface Patient {
 export interface VisitType {
     id: string;
     label: string;
-    color: string;
-    checklists: string[];
+    icon: string;
+    color?: string;
+    checklists?: string[];
 }
 
 export interface Visit {
@@ -25,20 +26,25 @@ export interface Visit {
 
 export interface TranscriptSegment {
     id: string;
-    speaker: 'doctor' | 'patient';
+    speaker: 'doctor' | 'patient' | 'unknown';
     text: string;
-    timestamp: string; // e.g. "00:15"
-    startSeconds: number;
-    endSeconds: number;
+    timestamp: number;
+    duration: number;
+}
+
+export interface NoteSentence {
+    id: string;
+    text: string;
+    confidence: 'high' | 'medium' | 'low';
+    audioStart?: number;
+    audioEnd?: number;
 }
 
 export interface SoapNote {
-    id: string;
-    visitId: string;
-    subjective: NoteSection;
-    objective: NoteSection;
-    assessment: NoteSection;
-    plan: NoteSection;
+    subjective: NoteSentence[];
+    objective: NoteSentence[];
+    assessment: NoteSentence[];
+    plan: NoteSentence[];
 }
 
 export interface NoteSection {
@@ -58,5 +64,5 @@ export interface CodeSuggestion {
     description: string;
     type: 'ICD-10' | 'CPT';
     confidence: number;
-    evidence: string[]; // Quotes from transcript
+    evidence: string[]; // Changed to string[] of transcript/note IDs
 }
