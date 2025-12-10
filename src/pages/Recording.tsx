@@ -20,17 +20,68 @@ export const Recording: React.FC = () => {
     const [isRecording, setIsRecording] = useState(true);
     const [isMicTestOpen, setIsMicTestOpen] = useState(false);
 
-    const handleStop = () => {
-        setIsRecording(false);
-        navigate('/processing', {
-            state: {
-                visitTypeId,
-                patientId
+    // Audio Capture Refs
+    const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
+    const audioChunksRef = React.useRef<Blob[]>([]);
+
+    React.useEffect(() => {
+        // Request Microphone Access
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                const mediaRecorder = new MediaRecorder(stream);
+                mediaRecorderRef.current = mediaRecorder;
+                audioChunksRef.current = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunksRef.current.push(event.data);
+                    }
+                };
+
+                mediaRecorder.start();
+            })
+            .catch(err => {
+                console.error("Error accessing microphone:", err);
+                setIsRecording(false);
+            });
+
+        return () => {
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+                mediaRecorderRef.current.stop();
             }
-        });
+        };
+    }, []);
+
+    const handleStop = () => {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+            mediaRecorderRef.current.stop();
+            // Wait a tick for the last data chunk
+            setTimeout(() => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/mp3' }); // Deepgram accepts webm/wav/mp3
+                // Navigate with blob
+                navigate('/processing', {
+                    state: {
+                        visitTypeId,
+                        patientId,
+                        audioBlob
+                    }
+                });
+            }, 200);
+        } else {
+            // Fallback if no recording (e.g. error)
+            navigate('/processing', {
+                state: { visitTypeId, patientId, audioBlob: null }
+            });
+        }
+        setIsRecording(false);
     };
 
     const togglePause = () => {
+        if (isRecording) {
+            mediaRecorderRef.current?.pause();
+        } else {
+            mediaRecorderRef.current?.resume();
+        }
         setIsRecording(!isRecording);
     };
 

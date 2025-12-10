@@ -5,10 +5,14 @@ import type { NoteSentence, SoapNote, CodeSuggestion } from '../../lib/types';
 import { clsx } from 'clsx';
 import { Button } from '../ui/Button';
 
-export const SoapNoteEditor: React.FC<{ selectedCodes?: CodeSuggestion[] }> = ({ selectedCodes = [] }) => {
-    const [note, setNote] = useState<SoapNote>(MOCK_SOAP_NOTE);
+export const SoapNoteEditor: React.FC<{ selectedCodes?: CodeSuggestion[], initialNote?: SoapNote }> = ({ selectedCodes = [], initialNote = MOCK_SOAP_NOTE }) => {
+    const [note, setNote] = useState<SoapNote>(initialNote);
     const [minConfidence, setMinConfidence] = useState<'low' | 'high'>('low');
     const [copied, setCopied] = useState(false);
+
+    React.useEffect(() => {
+        setNote(initialNote);
+    }, [initialNote]);
 
     const handleTextChange = (section: keyof SoapNote, id: string, newText: string) => {
         setNote(prev => ({

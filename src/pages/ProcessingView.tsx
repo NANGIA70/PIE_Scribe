@@ -18,15 +18,61 @@ export const ProcessingView: React.FC = () => {
         let currentStep = 0;
 
         const runSteps = async () => {
-            for (const s of steps) {
-                await new Promise(r => setTimeout(r, s.duration));
-                currentStep++;
-                setStep(currentStep);
-            }
-            // Navigate to review after all steps
-            setTimeout(() => {
+            // Start Initial Animation Steps (Transcribing)
+            setStep(0);
+            await new Promise(r => setTimeout(r, 1500));
+            setStep(1);
+
+            // API Call
+            if (location.state?.audioBlob) {
+                try {
+                    const formData = new FormData();
+                    formData.append('file', location.state.audioBlob, 'recording.mp3');
+                    formData.append('patient_id', location.state.patientId || 'unknown');
+                    formData.append('visit_type_id', location.state.visitTypeId || 'general');
+
+                    // Show "Structuring"
+                    setStep(2);
+
+                    const response = await fetch('http://localhost:8000/upload-audio', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (!response.ok) throw new Error('Upload failed');
+
+                    const visitData = await response.json();
+
+                    // Show "Analyzing" (briefly)
+                    setStep(3);
+                    await new Promise(r => setTimeout(r, 800));
+
+                    // Success - Navigate with Visit ID and Data
+                    navigate('/review', {
+                        state: {
+                            visitId: visitData.id,
+                            patientId: location.state.patientId
+                            // We could pass full data here, but Review page should probably fetch it or receive it.
+                            // Let's pass the visit ID so Review can fetch (or pass full data if we refactor Review).
+                            // For now, let's pass visitId.
+                        }
+                    });
+
+                } catch (error) {
+                    console.error("Processing error:", error);
+                    // Handle error (maybe navigate back or show alert)
+                    alert("Processing failed. Please try again.");
+                    navigate('/');
+                }
+            } else {
+                // Fallback for demo without audio (if user accessed directly)
+                console.warn("No audio blob found, using mock simulation");
+                await new Promise(r => setTimeout(r, 2000));
+                setStep(2);
+                await new Promise(r => setTimeout(r, 1000));
+                setStep(3);
                 navigate('/review', { state: location.state });
-            }, 500);
+            }
         };
 
         runSteps();
